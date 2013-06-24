@@ -1,0 +1,43 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+
+    tools:context=".MainActivity"
+    >
+
+
+  <ListView android:id="@android:id/list"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_alignParentTop="true"
+        android:layout_above="@+id/listFooter"
+        android:transcriptMode="alwaysScroll"
+        />
+
+  <LinearLayout android:id="@+id/listFooter"
+      android:layout_width="fill_parent"
+      android:layout_height="wrap_content"
+      android:layout_alignParentBottom="true"
+      android:orientation="horizontal">
+
+
+    <EditText
+        android:id="@+id/messageInput"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_weight="1"
+        android:lines="1"
+        android:inputType="textShortMessage"
+        android:singleLine="true" />
+
+    <ImageButton
+        android:id="@+id/sendButton"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:src="@android:drawable/ic_menu_send"
+        />
+  </LinearLayout>
+
+
+</RelativeLayout>
