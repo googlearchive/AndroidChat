@@ -16,8 +16,13 @@ import java.util.Random;
 
 public class MainActivity extends ListActivity {
 
+    // TODO: change this to your own Firebase URL
+    private static final String FIREBASE_URL = "https://android-chat.firebaseIO-demo.com";
+
     private String username;
     private Firebase ref;
+    private ValueEventListener connectedListener;
+    private ChatListAdapter chatListAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,19 +35,7 @@ public class MainActivity extends ListActivity {
         setTitle("Chatting as " + username);
 
         // Setup our Firebase ref
-        ref = new Firebase("https://gsoltis.firebaseio.com/android/chat");
-
-        // Setup our view and list adapter. Ensure it scrolls to the bottom as data changes
-        final ListView listView = getListView();
-        final ListAdapter adapter = new ChatListAdapter(ref.limit(50), this, R.layout.chat_message, username);
-        listView.setAdapter(adapter);
-        adapter.registerDataSetObserver(new DataSetObserver() {
-            @Override
-            public void onChanged() {
-                super.onChanged();
-                listView.setSelection(adapter.getCount() - 1);
-            }
-        });
+        ref = new Firebase(FIREBASE_URL).child("chat");
 
         // Setup our input methods. Enter key on the keyboard or pushing the send button
         EditText inputText = (EditText)findViewById(R.id.messageInput);
@@ -63,8 +56,25 @@ public class MainActivity extends ListActivity {
             }
         });
 
+    }
+
+    @Override
+    public void onStart() {
+        // Setup our view and list adapter. Ensure it scrolls to the bottom as data changes
+        final ListView listView = getListView();
+        // Tell our list adapter that we only want 50 messages at a time
+        chatListAdapter = new ChatListAdapter(ref.limit(50), this, R.layout.chat_message, username);
+        listView.setAdapter(chatListAdapter);
+        chatListAdapter.registerDataSetObserver(new DataSetObserver() {
+            @Override
+            public void onChanged() {
+                super.onChanged();
+                listView.setSelection(chatListAdapter.getCount() - 1);
+            }
+        });
+
         // Finally, a little indication of connection status
-        ref.getRoot().child(".info/connected").addValueEventListener(new ValueEventListener() {
+        connectedListener = ref.getRoot().child(".info/connected").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 boolean connected = (Boolean)dataSnapshot.getValue();
@@ -82,6 +92,13 @@ public class MainActivity extends ListActivity {
         });
     }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        ref.getRoot().child(".info/connected").removeEventListener(connectedListener);
+        chatListAdapter.cleanup();
+    }
+
     private void setupUsername() {
         SharedPreferences prefs = getApplication().getSharedPreferences("ChatPrefs", 0);
         username = prefs.getString("username", null);
@@ -97,10 +114,11 @@ public class MainActivity extends ListActivity {
         EditText inputText = (EditText)findViewById(R.id.messageInput);
         String input = inputText.getText().toString();
         if (!input.equals("")) {
+            // Create our 'model', a Chat object
             Chat chat = new Chat(input, username);
+            // Create a new, auto-generated child of that chat location, and save our chat data there
             ref.push().setValue(chat);
             inputText.setText("");
-            System.out.println("in: " + System.currentTimeMillis());
         }
     }
 }

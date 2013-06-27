@@ -38,25 +38,35 @@ public abstract class FirebaseListAdapter<T> extends BaseAdapter {
         inflater = activity.getLayoutInflater();
         models = new ArrayList<T>();
         modelNames = new HashMap<String, T>();
+        // Look for all child events. We will then map them to our own internal ArrayList, which backs ListView
         listener = this.ref.addChildEventListener(new ChildEventListener() {
             @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                System.out.println("out: " + System.currentTimeMillis());
-                long start = System.currentTimeMillis();
+            public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
+
                 T model = dataSnapshot.getValue(FirebaseListAdapter.this.modelClass);
-                long postParse = System.currentTimeMillis();
-                models.add(model);
                 modelNames.put(dataSnapshot.getName(), model);
 
+                // Insert into the correct location, based on previousChildName
+                if (previousChildName == null) {
+                    models.add(0, model);
+                } else {
+                    T previousModel = modelNames.get(previousChildName);
+                    int previousIndex = models.indexOf(previousModel);
+                    int nextIndex = previousIndex + 1;
+                    if (nextIndex == models.size()) {
+                        models.add(model);
+                    } else {
+                        models.add(nextIndex, model);
+                    }
+                }
+
                 notifyDataSetChanged();
-                long end = System.currentTimeMillis();
-                Log.i("FirebaseListAdapter", "Child added took " + (end - start) + "ms, " + (postParse - start) + "ms parsing, " +
-                    (end - postParse) + "ms notifying"
-                );
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                // One of the models changed. Replace it in our list and name mapping
                 String modelName = dataSnapshot.getName();
                 T oldModel = modelNames.get(modelName);
                 T newModel = dataSnapshot.getValue(FirebaseListAdapter.this.modelClass);
@@ -70,6 +80,8 @@ public abstract class FirebaseListAdapter<T> extends BaseAdapter {
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                // A model was removed from the list. Remove it from our list and the name mapping
                 String modelName = dataSnapshot.getName();
                 T oldModel = modelNames.get(modelName);
                 models.remove(oldModel);
@@ -79,6 +91,8 @@ public abstract class FirebaseListAdapter<T> extends BaseAdapter {
 
             @Override
             public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
+
+                // A model changed position in the list. Update our list accordingly
                 String modelName = dataSnapshot.getName();
                 T oldModel = modelNames.get(modelName);
                 T newModel = dataSnapshot.getValue(FirebaseListAdapter.this.modelClass);
@@ -106,7 +120,10 @@ public abstract class FirebaseListAdapter<T> extends BaseAdapter {
     }
 
     public void cleanup() {
+        // We're being destroyed, let go of our listener and forget about all of the models
         ref.removeEventListener(listener);
+        models.clear();
+        modelNames.clear();
     }
 
     @Override
@@ -131,6 +148,7 @@ public abstract class FirebaseListAdapter<T> extends BaseAdapter {
         }
 
         T model = models.get(i);
+        // Call out to subclass to marshall this model into the provided view
         populateView(view, model);
         return view;
     }
