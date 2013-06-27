@@ -1,4 +1,4 @@
-package com.gsoltis.androidchat;
+package com.firebase.androidchat;
 
 /**
  * User: greg

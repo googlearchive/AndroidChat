@@ -1,4 +1,4 @@
-package com.gsoltis.androidchat;
+package com.firebase.androidchat;
 
 import android.app.Activity;
 import android.util.Log;

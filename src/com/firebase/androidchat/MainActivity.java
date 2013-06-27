@@ -1,4 +1,4 @@
-package com.gsoltis.androidchat;
+package com.firebase.androidchat;
 
 import android.app.ListActivity;
 import android.content.SharedPreferences;
@@ -60,6 +60,7 @@ public class MainActivity extends ListActivity {
 
     @Override
     public void onStart() {
+        super.onStart();
         // Setup our view and list adapter. Ensure it scrolls to the bottom as data changes
         final ListView listView = getListView();
         // Tell our list adapter that we only want 50 messages at a time
