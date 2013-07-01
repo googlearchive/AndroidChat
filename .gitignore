@@ -5,3 +5,4 @@ gen/
 .settings/
 *.iml
 bin/
+local.properties

@@ -10,9 +10,8 @@ public class Chat {
     private String message;
     private String author;
 
-    private Chat() {
-
-    }
+    // Required default constructor for Firebase object mapping
+    private Chat() { }
 
     Chat(String message, String author) {
         this.message = message;
