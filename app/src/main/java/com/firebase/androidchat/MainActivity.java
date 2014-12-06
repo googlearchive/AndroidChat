@@ -10,6 +10,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.*;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 
 import java.util.Random;
@@ -87,7 +88,7 @@ public class MainActivity extends ListActivity {
             }
 
             @Override
-            public void onCancelled() {
+            public void onCancelled(FirebaseError firebaseError) {
                 // No-op
             }
         });
