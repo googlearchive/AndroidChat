@@ -1,8 +1,9 @@
 .idea
-out/
-gen/
 .project
 .settings/
 *.iml
 bin/
 local.properties
+app/build/
+.gradle
+build

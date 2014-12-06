@@ -1,16 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.firebase.androidchat"
-    android:versionCode="1"
-    android:versionName="1.0" >
+    package="com.firebase.androidchat">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
-    <uses-sdk
-        android:minSdkVersion="8"
-        android:targetSdkVersion="17" />
-
     <application
+        android:name="com.firebase.androidchat.ChatApplication"
         android:allowBackup="true"
         android:icon="@drawable/firebase_logo"
         android:label="@string/app_name"
