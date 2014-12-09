@@ -1,9 +1,8 @@
 package com.firebase.androidchat;
 
 /**
- * User: greg
- * Date: 6/21/13
- * Time: 2:38 PM
+ * @author greg
+ * @since 6/21/13
  */
 public class Chat {
 
@@ -12,7 +11,8 @@ public class Chat {
 
     // Required default constructor for Firebase object mapping
     @SuppressWarnings("unused")
-    private Chat() { }
+    private Chat() {
+    }
 
     Chat(String message, String author) {
         this.message = message;
