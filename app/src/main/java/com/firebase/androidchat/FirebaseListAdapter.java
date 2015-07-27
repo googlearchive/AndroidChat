@@ -36,7 +36,7 @@ public abstract class FirebaseListAdapter<T> extends BaseAdapter {
     private int mLayout;
     private LayoutInflater mInflater;
     private List<T> mModels;
-    private Map<String, T> mModelKeys;
+    private List<String> mKeys;
     private ChildEventListener mListener;
 
 
@@ -54,26 +54,28 @@ public abstract class FirebaseListAdapter<T> extends BaseAdapter {
         this.mLayout = mLayout;
         mInflater = activity.getLayoutInflater();
         mModels = new ArrayList<T>();
-        mModelKeys = new HashMap<String, T>();
+        mKeys = new ArrayList<String>();
         // Look for all child events. We will then map them to our own internal ArrayList, which backs ListView
         mListener = this.mRef.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
 
                 T model = dataSnapshot.getValue(FirebaseListAdapter.this.mModelClass);
-                mModelKeys.put(dataSnapshot.getKey(), model);
+                String key = dataSnapshot.getKey();
 
                 // Insert into the correct location, based on previousChildName
                 if (previousChildName == null) {
                     mModels.add(0, model);
+                    mKeys.add(0, key);
                 } else {
-                    T previousModel = mModelKeys.get(previousChildName);
-                    int previousIndex = mModels.indexOf(previousModel);
+                    int previousIndex = mKeys.indexOf(previousChildName);
                     int nextIndex = previousIndex + 1;
                     if (nextIndex == mModels.size()) {
                         mModels.add(model);
+                        mKeys.add(key);
                     } else {
                         mModels.add(nextIndex, model);
+                        mKeys.add(nextIndex, key);
                     }
                 }
 
@@ -82,15 +84,12 @@ public abstract class FirebaseListAdapter<T> extends BaseAdapter {
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
                 // One of the mModels changed. Replace it in our list and name mapping
-                String modelName = dataSnapshot.getKey();
-                T oldModel = mModelKeys.get(modelName);
+                String key = dataSnapshot.getKey();
                 T newModel = dataSnapshot.getValue(FirebaseListAdapter.this.mModelClass);
-                int index = mModels.indexOf(oldModel);
+                int index = mKeys.indexOf(key);
 
                 mModels.set(index, newModel);
-                mModelKeys.put(modelName, newModel);
 
                 notifyDataSetChanged();
             }
@@ -99,10 +98,8 @@ public abstract class FirebaseListAdapter<T> extends BaseAdapter {
             public void onChildRemoved(DataSnapshot dataSnapshot) {
 
                 // A model was removed from the list. Remove it from our list and the name mapping
-                String modelName = dataSnapshot.getKey();
-                T oldModel = mModelKeys.get(modelName);
-                mModels.remove(oldModel);
-                mModelKeys.remove(modelName);
+                String key = dataSnapshot.getKey();
+                mKeys.remove(key);
                 notifyDataSetChanged();
             }
 
@@ -110,21 +107,23 @@ public abstract class FirebaseListAdapter<T> extends BaseAdapter {
             public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
 
                 // A model changed position in the list. Update our list accordingly
-                String modelName = dataSnapshot.getKey();
-                T oldModel = mModelKeys.get(modelName);
+                String key = dataSnapshot.getKey();
                 T newModel = dataSnapshot.getValue(FirebaseListAdapter.this.mModelClass);
-                int index = mModels.indexOf(oldModel);
+                int index = mKeys.indexOf(key);
                 mModels.remove(index);
+                mKeys.remove(index);
                 if (previousChildName == null) {
                     mModels.add(0, newModel);
+                    mKeys.add(0, key);
                 } else {
-                    T previousModel = mModelKeys.get(previousChildName);
-                    int previousIndex = mModels.indexOf(previousModel);
+                    int previousIndex = mKeys.indexOf(previousChildName);
                     int nextIndex = previousIndex + 1;
                     if (nextIndex == mModels.size()) {
                         mModels.add(newModel);
+                        mKeys.add(key);
                     } else {
                         mModels.add(nextIndex, newModel);
+                        mKeys.add(nextIndex, key);
                     }
                 }
                 notifyDataSetChanged();
@@ -142,7 +141,7 @@ public abstract class FirebaseListAdapter<T> extends BaseAdapter {
         // We're being destroyed, let go of our mListener and forget about all of the mModels
         mRef.removeEventListener(mListener);
         mModels.clear();
-        mModelKeys.clear();
+        mKeys.clear();
     }
 
     @Override
