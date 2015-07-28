@@ -99,7 +99,11 @@ public abstract class FirebaseListAdapter<T> extends BaseAdapter {
 
                 // A model was removed from the list. Remove it from our list and the name mapping
                 String key = dataSnapshot.getKey();
-                mKeys.remove(key);
+                int index = mKeys.indexOf(key);
+
+                mKeys.remove(index);
+                mModels.remove(index);
+
                 notifyDataSetChanged();
             }
 
