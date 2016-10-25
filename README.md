@@ -1,4 +1,7 @@
-# Firebase Chat for Android
+# **This sample is deprecated. For a Firebase v3.x sample see: https://github.com/firebase/quickstart-android**
+
+
+## Firebase Chat for Android
 
 A simple chat application that built with Firebase on Android.
 
